@@ -1,0 +1,128 @@
+# TYPO3 Backned App Configuration of EventApp
+---
+app:
+  package: 'AndreasSteiger/EventManager'
+  name: 'EventApp' # notwendig, wenn Dati schon korrekte Bezeichnung hat?
+  title: 'LLL:EXT:event_manager/Resources/Private/Language/ParticipantApp.xlf:title'
+  labelFile: 'LLL:EXT:event_manager/Resources/Private/Language/ParticipantApp.xlf'
+  iconFile: 'EXT:event_manager/Resources/Public/Icons/ParticipantApp.svg'
+  extends: 'TYPO3/CMS-ListApp'
+  asideGroupWidthInPercent: 30
+  parentModule:
+    - web
+
+components:
+  headerMenu:
+    appSettings: true
+    help: true
+
+  # or topGroup: false
+  topGroup:
+    -
+      component: 'customOverview'
+      settings:
+        # Order???
+        template: 'EXT:event_manager/Resources/Private/Templates/Apps/EventApp/Above.html'
+        controller: 'AndreasSteiger\\EventManager\\AppController\\CustomOverviewController'
+        action: 'index'
+    -
+      component: 'presets'
+      settings:
+        # See TCA... possibly...
+        selectors:
+          category:
+            label: 'EXT:event_manager/Resources/Language/apps.xlf:EventApp.perspectives.category'
+            fields:
+              - 'tx_eventmanager_domain_model_event.categories'
+            type: 'select'
+          band:
+            label: 'EXT:event_manager/Resources/Language/apps.xlf:EventApp.perspectives.band'
+            fields:
+              - 'tx_eventmanager_domain_model_event.band'
+            type: 'select'
+          year:
+            label: 'EXT:event_manager/Resources/Language/apps.xlf:EventApp.perspectives.year'
+            provider: 'AndreasSteiger\\EventManager\\AppController\\DataProvider->getEventYears'
+            type: 'select'
+
+        # Creates pre-defined filter
+        presets:
+          provider: 'AndreasSteiger\\EventManager\\AppController\\DataProvider->getSelectableYears'
+
+  asideGroup:
+    -
+      component: 'customOverview'
+      settings:
+        template: 'EXT:event_manager/Resources/Private/Templates/Apps/EventApp/Aside.html'
+        controller: 'AndreasSteiger\\EventManager\\AppController\\CustomOverviewController'
+        action: 'index'
+    -
+      component: 'tree'
+
+  filter:
+    settings:
+      smartFilter:
+        -
+          month:
+            label: 'EXT:event_manager/Resources/Language/apps.xlf:EventApp.filter.month'
+            type: 'select'
+            interceptor: 'AndreasSteiger\\EventManager\\AppConstraints\\Constraint->addMonthConstraint'
+            constraints:
+              last:
+                label: 'EXT:event_manager/Resources/Language/apps.xlf:EventApp.filter.month.last'
+                type: 'dynamic'
+                provider: 'AndreasSteiger\\EventManager\\AppController\\DataProvider->getLastMonth'
+              lastTwoMonths:
+                label: 'EXT:event_manager/Resources/Language/apps.xlf:EventApp.filter.month.lasttwomonths'
+                type: 'dynamic'
+                provider: 'AndreasSteiger\\EventManager\\AppController\\DataProvider->getLastTwoMonths'
+        -
+          date:
+            label: 'EXT:event_manager/Resources/Language/apps.xlf:EventApp.filter.date'
+            type: 'input'
+            widget: 'datepicker'
+            provider: 'AndreasSteiger\\EventManager\\AppController\\DataProvider->getCurrentDateUntilEndOfMonth'
+
+  result:
+    type: 'show'
+    settings:
+      defaultView: 'list'
+      views:
+        list:
+          templateFile: 'EXT:event_manager/Resources/Private/Templates/Apps/EventApp/Result/List.html'
+          iconFile: 'EXT:event_manager/Resources/Public/Icons/Apps/EventApp/List.svg'
+          sourceTableName: 'tx_eventmanager_domain_model_event'
+          columns:
+            # where are the language labels of the column heads?
+            default:
+              - title
+              - band
+              - date
+              - participants
+              - countdown
+              - duration
+            fixed:
+              - title
+            computed:
+              countdown:
+                label: 'EXT:event_manager/Resources/Language/apps.xlf:EventApp.result.computedcolumn.countdown'
+                type: 'datetime'
+                provider: 'AndreasSteiger\\EventManager\\AppController\\DataProvider->getDatePeriodUntilStartDate'
+              duration:
+                label: 'EXT:event_manager/Resources/Language/apps.xlf:EventApp.result.computedcolumn.duration'
+                type: 'datetime'
+                provider: 'AndreasSteiger\\EventManager\\AppController\\DataProvider->getDatePeriodUntilStartDate'
+          behavior:
+            allowMassAction: false
+            allowColumnSelection: false
+            # is there a way to select/mark a value and push it so that into the app settings?
+            maximumColumns: 20
+            maximumElementsPerPage: 25
+            usePresetsComponent: true
+
+        calendar: true
+        # settings: usePresetsComponent???
+
+        tiles: true
+
+        coverFlow: false
