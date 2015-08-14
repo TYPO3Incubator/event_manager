@@ -2,26 +2,28 @@
 ---
 app:
   package: 'AndreasSteiger/EventManager'
-  name: 'EventApp' # notwendig, wenn Dati schon korrekte Bezeichnung hat?
+  name: 'EventApp'
   title: 'LLL:EXT:event_manager/Resources/Private/Language/EventApp.xlf:title'
   labelFile: 'LLL:EXT:event_manager/Resources/Private/Language/EventApp.xlf'
   iconFile: 'EXT:event_manager/Resources/Public/Icons/EventApp.svg'
+  #parentModule: "apps"
   extends: 'TYPO3/CMS-ListApp'
-  asideGroupWidthInPercent: 30
-  parentModule:
-    - web
+  settings:
+    asideGroup:
+      width: static # or dynamic
+      defaultWidth: '30%'
 
 components:
   headerMenu:
-    appSettings: true
-    help: true
+    settings:
+      showAppSettings: true
+      showHelp: true
 
   # or topGroup: false
   topGroup:
     -
       component: 'customOverview'
       settings:
-        # Order???
         template: 'EXT:event_manager/Resources/Private/Templates/Apps/EventApp/Above.html'
         controller: 'AndreasSteiger\\EventManager\\AppController\\CustomOverviewController'
         action: 'index'
@@ -31,17 +33,17 @@ components:
         # See TCA... possibly...
         selectors:
           category:
-            label: 'EXT:event_manager/Resources/Language/apps.xlf:EventApp.perspectives.category'
+            label: 'EXT:event_manager/Resources/Private/Language/EventApp.xlf:presets.category'
             fields:
               - 'tx_eventmanager_domain_model_event.categories'
             type: 'select'
           band:
-            label: 'EXT:event_manager/Resources/Language/apps.xlf:EventApp.perspectives.band'
+            label: 'EXT:event_manager/Resources/Language/EventApp.xlf:perspectives.band'
             fields:
               - 'tx_eventmanager_domain_model_event.band'
             type: 'select'
           year:
-            label: 'EXT:event_manager/Resources/Language/apps.xlf:EventApp.perspectives.year'
+            label: 'EXT:event_manager/Resources/Language/EventApp.xlf:perspectives.year'
             provider: 'AndreasSteiger\\EventManager\\AppController\\DataProvider->getEventYears'
             type: 'select'
 
@@ -64,21 +66,21 @@ components:
       smartFilter:
         -
           month:
-            label: 'EXT:event_manager/Resources/Language/apps.xlf:EventApp.filter.month'
+            label: 'EXT:event_manager/Resources/Language/EventApp.xlf:filter.month'
             type: 'select'
             interceptor: 'AndreasSteiger\\EventManager\\AppConstraints\\Constraint->addMonthConstraint'
             constraints:
               last:
-                label: 'EXT:event_manager/Resources/Language/apps.xlf:EventApp.filter.month.last'
+                label: 'EXT:event_manager/Resources/Language/EventApp.xlf:filter.month.last'
                 type: 'dynamic'
                 provider: 'AndreasSteiger\\EventManager\\AppController\\DataProvider->getLastMonth'
               lastTwoMonths:
-                label: 'EXT:event_manager/Resources/Language/apps.xlf:EventApp.filter.month.lasttwomonths'
+                label: 'EXT:event_manager/Resources/Language/EventApp.xlf:filter.month.lasttwomonths'
                 type: 'dynamic'
                 provider: 'AndreasSteiger\\EventManager\\AppController\\DataProvider->getLastTwoMonths'
         -
           date:
-            label: 'EXT:event_manager/Resources/Language/apps.xlf:EventApp.filter.date'
+            label: 'EXT:event_manager/Resources/Language/EventApp.xlf:filter.date'
             type: 'input'
             widget: 'datepicker'
             provider: 'AndreasSteiger\\EventManager\\AppController\\DataProvider->getCurrentDateUntilEndOfMonth'
@@ -93,7 +95,7 @@ components:
           iconFile: 'EXT:event_manager/Resources/Public/Icons/Apps/EventApp/List.svg'
           sourceTableName: 'tx_eventmanager_domain_model_event'
           columns:
-            # where are the language labels of the column heads?
+            # where are the language labels of the column heads defined? TCA?
             default:
               - title
               - band
@@ -105,11 +107,11 @@ components:
               - title
             computed:
               countdown:
-                label: 'EXT:event_manager/Resources/Language/apps.xlf:EventApp.result.computedcolumn.countdown'
+                label: 'EXT:event_manager/Resources/Language/EventApp.xlf:result.computeColumn.countdown'
                 type: 'datetime'
                 provider: 'AndreasSteiger\\EventManager\\AppController\\DataProvider->getDatePeriodUntilStartDate'
               duration:
-                label: 'EXT:event_manager/Resources/Language/apps.xlf:EventApp.result.computedcolumn.duration'
+                label: 'EXT:event_manager/Resources/Language/EventApp.xlf:computedColumn.duration'
                 type: 'datetime'
                 provider: 'AndreasSteiger\\EventManager\\AppController\\DataProvider->getDatePeriodUntilStartDate'
           behavior:
