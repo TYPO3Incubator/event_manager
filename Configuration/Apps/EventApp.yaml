@@ -1,76 +1,88 @@
 # TYPO3 Backned App Configuration of EventApp
 ---
 app:
-  package: 'AndreasSteiger/EventManager'
+  package: 'TYPO3Incubator/EventManager'
   name: 'EventApp'
   title: 'LLL:EXT:event_manager/Resources/Private/Language/EventApp.xlf:title'
   labelFile: 'LLL:EXT:event_manager/Resources/Private/Language/EventApp.xlf'
   iconFile: 'EXT:event_manager/Resources/Public/Icons/EventApp.svg'
   #parentModule: "apps"
-  extends: 'TYPO3/CMS-ListApp'
-  settings:
-    asideGroup:
-      width: static # or dynamic
-      defaultWidth: '30%'
+  templateFile: 'EXT:app_engine/Resources/Private/Templates/Apps/Layout.html'
+  extends: 'TYPO3Incubator/AppEngine/BaseApp'
 
 components:
   headerMenu:
     settings:
       showAppSettings: true
+      appSettingsTemplateFile: 'EXT:event_manager/Resources/Private/Partials/Apps/EventApp/Settings.html'
       showHelp: true
+      helpTemplateFile: 'EXT:event_manager/Resources/Private/Partials/Apps/EventApp/Help.html'
 
   # or topGroup: false
   topGroup:
-    -
-      component: 'customOverview'
       settings:
-        template: 'EXT:event_manager/Resources/Private/Templates/Apps/EventApp/Above.html'
-        controller: 'AndreasSteiger\\EventManager\\AppController\\CustomOverviewController'
-        action: 'index'
-    -
-      component: 'presets'
-      settings:
-        # See TCA... possibly...
-        selectors:
-          category:
-            label: 'EXT:event_manager/Resources/Private/Language/EventApp.xlf:presets.category'
-            fields:
-              - 'tx_eventmanager_domain_model_event.categories'
-            type: 'select'
-          band:
-            label: 'EXT:event_manager/Resources/Language/EventApp.xlf:perspectives.band'
-            fields:
-              - 'tx_eventmanager_domain_model_event.band'
-            type: 'select'
-          year:
-            label: 'EXT:event_manager/Resources/Language/EventApp.xlf:perspectives.year'
-            provider: 'AndreasSteiger\\EventManager\\AppController\\DataProvider->getEventYears'
-            type: 'select'
-
-        # Creates pre-defined filter
-        presets:
-          provider: 'AndreasSteiger\\EventManager\\AppController\\DataProvider->getSelectableYears'
+        collapseAll: true
+      components:
+        -
+          component: 'customOverview'
+          settings:
+            templateFile: 'EXT:event_manager/Resources/Private/Partials/Apps/EventApp/Custom.html'
+            controller: 'AndreasSteiger\\EventManager\\AppController\\CustomOverviewController'
+            action: 'index'
+        -
+          component: 'presets'
+          settings:
+            # See TCA... possibly...
+            selectors:
+              category:
+                label: 'EXT:event_manager/Resources/Private/Language/EventApp.xlf:presets.category'
+                fields:
+                  - 'tx_eventmanager_domain_model_event.categories'
+                type: 'select'
+              band:
+                label: 'EXT:event_manager/Resources/Language/EventApp.xlf:perspectives.band'
+                fields:
+                  - 'tx_eventmanager_domain_model_event.band'
+                type: 'select'
+              year:
+                label: 'EXT:event_manager/Resources/Language/EventApp.xlf:perspectives.year'
+                provider: 'AndreasSteiger\\EventManager\\AppController\\DataProvider->getEventYears'
+                type: 'select'
 
   asideGroup:
-    -
-      component: 'customOverview'
-      settings:
-        template: 'EXT:event_manager/Resources/Private/Templates/Apps/EventApp/Aside.html'
-        controller: 'AndreasSteiger\\EventManager\\AppController\\CustomOverviewController'
-        action: 'index'
-    -
-      component: 'tree'
+    settings:
+      defaultWidth: '30%'
+    components:
+      -
+        component: 'customOverview'
+        settings:
+          templateFile: 'EXT:event_manager/Resources/Private/Partials/Apps/EventApp/CustomAside.html'
+          controller: 'AndreasSteiger\\EventManager\\AppController\\CustomOverviewController'
+          action: 'index'
+      -
+        component: 'tree'
 
   filter:
     settings:
+      pageFilter: true
+      inputField:
+        allowSearchInColumn:
+          - title
+          - band
+          - date
+          - participant
+        defaultSearchInColumn:
+          - title
+          - band
+          - participant
       smartFilter:
-        -
-          month:
-            label: 'EXT:event_manager/Resources/Language/EventApp.xlf:filter.month'
-            type: 'select'
+          eventDate:
+            multipleSelect: true
+            label: 'EXT:event_manager/Resources/Language/EventApp.xlf:filter.date'
+            type: 'date'
             interceptor: 'AndreasSteiger\\EventManager\\AppConstraints\\Constraint->addMonthConstraint'
-            constraints:
-              last:
+            addConstraints:
+              lastMonth:
                 label: 'EXT:event_manager/Resources/Language/EventApp.xlf:filter.month.last'
                 type: 'dynamic'
                 provider: 'AndreasSteiger\\EventManager\\AppController\\DataProvider->getLastMonth'
@@ -78,12 +90,29 @@ components:
                 label: 'EXT:event_manager/Resources/Language/EventApp.xlf:filter.month.lasttwomonths'
                 type: 'dynamic'
                 provider: 'AndreasSteiger\\EventManager\\AppController\\DataProvider->getLastTwoMonths'
-        -
-          date:
+              day:
+                label: 'EXT:event_manager/Resources/Language/EventApp.xlf:filter.day'
+                type: 'input'
+                widget: 'datepicker'
+                provider: ''
+              period:
+                label: 'EXT:event_manager/Resources/Language/EventApp.xlf:filter.period'
+                type: 'input'
+                widget: 'rangeSlider'
+                provider: ''
+          state:
+            multipleSelect: false
             label: 'EXT:event_manager/Resources/Language/EventApp.xlf:filter.date'
-            type: 'input'
-            widget: 'datepicker'
-            provider: 'AndreasSteiger\\EventManager\\AppController\\DataProvider->getCurrentDateUntilEndOfMonth'
+            interceptor: 'AndreasSteiger\\EventManager\\AppConstraints\\Constraint->addStateConstraint'
+            constraints:
+              cancled:
+                label: 'EXT:event_manager/Resources/Language/EventApp.xlf:filter.state'
+                provider: 'AndreasSteiger\\EventManager\\AppController\\DataProvider->getLastMonth'
+          creator: true
+          creationDate: true
+          category: true
+
+
 
   result:
     type: 'show'
@@ -91,20 +120,20 @@ components:
       defaultView: 'list'
       views:
         list:
-          templateFile: 'EXT:event_manager/Resources/Private/Templates/Apps/EventApp/Result/List.html'
+          templateFile: 'EXT:event_manager/Resources/Private/Partials/Apps/EventApp/Result/List.html'
           iconFile: 'EXT:event_manager/Resources/Public/Icons/Apps/EventApp/List.svg'
           sourceTableName: 'tx_eventmanager_domain_model_event'
           columns:
-            # where are the language labels of the column heads defined? TCA?
+            allowed: 'all'
             default:
               - title
-              - band
-              - date
-              - participants
+              - city
+              - location
+              - startDate
               - countdown
               - duration
-            fixed:
-              - title
+            #fixed:
+            #  - title
             computed:
               countdown:
                 label: 'EXT:event_manager/Resources/Language/EventApp.xlf:result.computeColumn.countdown'
@@ -117,13 +146,12 @@ components:
           behavior:
             allowMassAction: false
             allowColumnSelection: false
-            # is there a way to select/mark a value and push it so that into the app settings?
             maximumColumns: 20
             maximumElementsPerPage: 25
             usePresetsComponent: true
 
         calendar: true
-        # settings: usePresetsComponent???
+        # settings: usePresetsComponent?
 
         tiles: true
 
