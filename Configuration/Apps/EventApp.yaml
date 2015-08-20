@@ -7,8 +7,7 @@ app:
   labelFile: 'LLL:EXT:event_manager/Resources/Private/Language/EventApp.xlf'
   iconFile: 'EXT:event_manager/Resources/Public/Icons/EventApp.svg'
   #parentModule: "apps"
-  templateFile: 'EXT:app_engine/Resources/Private/Templates/Apps/Layout.html'
-  extends: 'TYPO3Incubator/AppEngine/BaseApp'
+  extends: 'TYPO3Incubator/AppEngine/ListApp'
 
 components:
   headerMenu:
@@ -118,31 +117,32 @@ components:
     type: 'show'
     settings:
       defaultView: 'list'
+      sourceTableName: 'tx_eventmanager_domain_model_event'
+      columns:
+        allowed: 'all'
+        default:
+          - title
+          - city
+          - location
+          - startDate
+          - countdown
+          - duration
+        #fixed:
+        #  - title
       views:
         list:
           templateFile: 'EXT:event_manager/Resources/Private/Partials/Apps/EventApp/Result/List.html'
           iconFile: 'EXT:event_manager/Resources/Public/Icons/Apps/EventApp/List.svg'
-          sourceTableName: 'tx_eventmanager_domain_model_event'
-          columns:
-            allowed: 'all'
-            default:
-              - title
-              - city
-              - location
-              - startDate
-              - countdown
-              - duration
-            #fixed:
-            #  - title
-            computed:
-              countdown:
-                label: 'EXT:event_manager/Resources/Language/EventApp.xlf:result.computeColumn.countdown'
-                type: 'datetime'
-                provider: 'AndreasSteiger\\EventManager\\AppController\\DataProvider->getDatePeriodUntilStartDate'
-              duration:
-                label: 'EXT:event_manager/Resources/Language/EventApp.xlf:computedColumn.duration'
-                type: 'datetime'
-                provider: 'AndreasSteiger\\EventManager\\AppController\\DataProvider->getDatePeriodUntilStartDate'
+          computedColumns:
+            countdown:
+              label: 'EXT:event_manager/Resources/Language/EventApp.xlf:result.computeColumn.countdown'
+              type: 'datetime'
+              provider: 'AndreasSteiger\\EventManager\\AppController\\DataProvider->getDatePeriodUntilStartDate'
+            duration:
+              label: 'EXT:event_manager/Resources/Language/EventApp.xlf:computedColumn.duration'
+              type: 'datetime'
+              provider: 'AndreasSteiger\\EventManager\\AppController\\DataProvider->getDatePeriodUntilStartDate'
+          computedRows: ''
           behavior:
             allowMassAction: false
             allowColumnSelection: false
