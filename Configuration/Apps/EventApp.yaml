@@ -1,158 +1,176 @@
-# TYPO3 Backned App Configuration of EventApp
+# TYPO3 Backend App configuration of EventApp
 ---
 app:
-  package: 'TYPO3Incubator/EventManager'
+  package: 'AndreasSteiger/EventManager'
   name: 'EventApp'
-  title: 'LLL:EXT:event_manager/Resources/Private/Language/EventApp.xlf:title'
-  labelFile: 'LLL:EXT:event_manager/Resources/Private/Language/EventApp.xlf'
+  title: 'LLL:EXT:event_manager/Resources/Private/Language/locallang_apps_eventapp.xlf:title'
+  labelFile: 'LLL:EXT:event_manager/Resources/Private/Language/locallang_apps_eventapp.xlf'
   iconFile: 'EXT:event_manager/Resources/Public/Icons/EventApp.svg'
-  #parentModule: "apps"
-  extends: 'TYPO3Incubator/AppEngine/ListApp'
+  extends: 'AndreasSteiger/AppEngine/ListApp'
 
 components:
-  headerMenu:
-    settings:
-      showAppSettings: true
-      appSettingsTemplateFile: 'EXT:event_manager/Resources/Private/Partials/Apps/EventApp/Settings.html'
-      showHelp: true
-      helpTemplateFile: 'EXT:event_manager/Resources/Private/Partials/Apps/EventApp/Help.html'
 
-  # or topGroup: false
   topGroup:
-      settings:
-        collapseAll: true
       components:
-        -
-          component: 'customOverview'
-          settings:
-            templateFile: 'EXT:event_manager/Resources/Private/Partials/Apps/EventApp/Custom.html'
-            controller: 'AndreasSteiger\\EventManager\\AppController\\CustomOverviewController'
-            action: 'index'
         -
           component: 'presets'
           settings:
-            # See TCA... possibly...
-            selectors:
-              category:
-                label: 'EXT:event_manager/Resources/Private/Language/EventApp.xlf:presets.category'
-                fields:
-                  - 'tx_eventmanager_domain_model_event.categories'
-                type: 'select'
-              band:
-                label: 'EXT:event_manager/Resources/Language/EventApp.xlf:perspectives.band'
-                fields:
-                  - 'tx_eventmanager_domain_model_event.band'
-                type: 'select'
-              year:
-                label: 'EXT:event_manager/Resources/Language/EventApp.xlf:perspectives.year'
-                provider: 'AndreasSteiger\\EventManager\\AppController\\DataProvider->getEventYears'
-                type: 'select'
+            globalGroups:
+              categories:
+                label: 'EXT:event_manager/Resources/Private/Language/locallang_apps_eventapp.xlf:presets.categories'
+                autoGenerate:
+                  - tx_eventmanager_domain_model_event.categories
 
-  asideGroup:
-    settings:
-      defaultWidth: '30%'
-    components:
-      -
-        component: 'customOverview'
-        settings:
-          templateFile: 'EXT:event_manager/Resources/Private/Partials/Apps/EventApp/CustomAside.html'
-          controller: 'AndreasSteiger\\EventManager\\AppController\\CustomOverviewController'
-          action: 'index'
-      -
-        component: 'tree'
+                buttons:
+                  specialGlobalPreset:
+                    label: 'EXT:event_manager/Resources/Private/Language/locallang_apps_eventapp.xlf:presets.categories.specialGlobalPreset'
+                    filter:
+                      -
+                        criteria:
+                          -
+                            column: tx_eventmanager_domain_model_event.crdate
+                            constraints:
+                              - 'within last'
+                              - 2
+                              - 'weeks'
+                      -
+                        criteria:
+                          -
+                            column: tx_eventmanager_domain_model_event.eventstart
+                            constraints:
+                              - 'this'
+                              - 'month'
+                      -
+                        criteria:
+                          -
+                            column: tx_eventmanager_domain_model_event.title
+                            constraints:
+                              - 'contains'
+                              - 'dance'
+                          -
+                            column: tx_eventmanager_domain_model_event.location
+                            constraints:
+                              - 'contains'
+                              - 'dance'
+                      -
+                        criteria:
+                          -
+                            column: tx_eventmanager_domain_model_event.pid
+                            constraints:
+                              - 'equals'
+                              - 5
+                    view:
+                      list:
+                        columns:
+                          -
+                            column: tx_eventmanager_domain_model_event.title
+                            width: 395px
+                            sorting: true
+                          -
+                            column: tx_eventmanager_domain_model_event.categories
+                            width: 200px
+                          -
+                            column: tx_eventmanager_domain_model_event.city
+                            width: 150px
+                          -
+                            column: tx_eventmanager_domain_model_event.location
+                            width: 290px
 
   filter:
     settings:
-      pageFilter: true
       inputField:
-        allowSearchInColumn:
-          - title
-          - band
-          - date
-          - participant
-        defaultSearchInColumn:
-          - title
-          - band
-          - participant
+        allowedColumns:
+          - tx_eventmanager_domain_model_event.title
+          - tx_eventmanager_domain_model_event.location
+          - tx_eventmanager_domain_model_event.artists
+          - tx_eventmanager_domain_model_event.city
+        enabledColumns:
+          - tx_eventmanager_domain_model_event.title
+          - tx_eventmanager_domain_model_event.location
       smartFilter:
-          eventDate:
-            multipleSelect: true
-            label: 'EXT:event_manager/Resources/Language/EventApp.xlf:filter.date'
-            type: 'date'
-            interceptor: 'AndreasSteiger\\EventManager\\AppConstraints\\Constraint->addMonthConstraint'
-            addConstraints:
-              lastMonth:
-                label: 'EXT:event_manager/Resources/Language/EventApp.xlf:filter.month.last'
-                type: 'dynamic'
-                provider: 'AndreasSteiger\\EventManager\\AppController\\DataProvider->getLastMonth'
-              lastTwoMonths:
-                label: 'EXT:event_manager/Resources/Language/EventApp.xlf:filter.month.lasttwomonths'
-                type: 'dynamic'
-                provider: 'AndreasSteiger\\EventManager\\AppController\\DataProvider->getLastTwoMonths'
-              day:
-                label: 'EXT:event_manager/Resources/Language/EventApp.xlf:filter.day'
-                type: 'input'
-                widget: 'datepicker'
-                provider: ''
-              period:
-                label: 'EXT:event_manager/Resources/Language/EventApp.xlf:filter.period'
-                type: 'input'
-                widget: 'rangeSlider'
-                provider: ''
-          state:
-            multipleSelect: false
-            label: 'EXT:event_manager/Resources/Language/EventApp.xlf:filter.date'
-            interceptor: 'AndreasSteiger\\EventManager\\AppConstraints\\Constraint->addStateConstraint'
-            constraints:
-              cancled:
-                label: 'EXT:event_manager/Resources/Language/EventApp.xlf:filter.state'
-                provider: 'AndreasSteiger\\EventManager\\AppController\\DataProvider->getLastMonth'
-          creator: true
-          creationDate: true
-          category: true
-
-
+        addColumns:
+          - tx_eventmanager_domain_model_event.title
+          - tx_eventmanager_domain_model_event.location
+          - tx_eventmanager_domain_model_event.city
+          - tx_eventmanager_domain_model_event.eventstart
+          - tx_eventmanager_domain_model_event.eventend
 
   result:
-    type: 'show'
     settings:
-      defaultView: 'list'
       sourceTableName: 'tx_eventmanager_domain_model_event'
-      columns:
-        allowed: 'all'
-        default:
-          - title
-          - city
-          - location
-          - startDate
-          - countdown
-          - duration
-        #fixed:
-        #  - title
       views:
         list:
-          templateFile: 'EXT:event_manager/Resources/Private/Partials/Apps/EventApp/Result/List.html'
-          iconFile: 'EXT:event_manager/Resources/Public/Icons/Apps/EventApp/List.svg'
+          allowedColumnsFromSourceTable:
+            - title
+            - location
+            - city
+            - startdate
+            - author
+            - artists
+            - price
+            - participants
+          shownColumnsByDefault:
+            - title
+            - location
+            - startdate
+            - duration
+            - author
+            - artists
+            - price
           computedColumns:
             countdown:
-              label: 'EXT:event_manager/Resources/Language/EventApp.xlf:result.computeColumn.countdown'
+              label: 'EXT:event_manager/Resources/Language/locallang_apps_eventapp.xlf:result.list.computedColumns.countdown'
               type: 'datetime'
-              provider: 'AndreasSteiger\\EventManager\\AppController\\DataProvider->getDatePeriodUntilStartDate'
+              operation: 'difference'
+              arguments:
+                -
+                  column: 'startdate'
+                -
+                  provider: 'AndreasSteiger\\EventManager\\AppController\\DataProvider->getDateTimeNow'
+              resultFormat: 'hh : mm : ss'
+
             duration:
-              label: 'EXT:event_manager/Resources/Language/EventApp.xlf:computedColumn.duration'
-              type: 'datetime'
-              provider: 'AndreasSteiger\\EventManager\\AppController\\DataProvider->getDatePeriodUntilStartDate'
-          computedRows: ''
-          behavior:
-            allowMassAction: false
-            allowColumnSelection: false
-            maximumColumns: 20
-            maximumElementsPerPage: 25
-            usePresetsComponent: true
+              label: 'EXT:event_manager/Resources/Language/locallang_apps_eventapp.xlf:result.list.computedColumns.duration'
+              type: 'number'
+              operation: 'difference'
+              arguments:
+                -
+                  column: 'enddate'
+                -
+                  column: 'startdate'
+              resultUnit: 'days'
+
+            numberOfParticipants:
+              label: 'EXT:event_manager/Resources/Language/locallang_apps_eventapp.xlf:result.list.computedColumns.numberOfParticipantsInPercent'
+              type: 'number'
+              operation: 'percent'
+              arguments:
+                -
+                  column: 'participants'
+                -
+                  value: 150
+              resultUnit: '%'
+
+          computedRows:
+            settings:
+              paginationSummery: true
+              totalSummery: true
+            columns:
+              price:
+                label: 'EXT:event_manager/Resources/Language/locallang_apps_eventapp.xlf:result.list.computedRows.price'
+                operation: 'sum'
+                resultUnit: '€'
+
+          computedRows:
+            settings:
+              paginationSummery: true
+              totalSummery: false
+            columns:
+              filesize:
+                label: 'EXT:event_manager/Resources/Language/locallang_apps_eventapp.xlf:result.list.computedRows.filesize'
+                operation: 'sum'
+                provider: 'AndreasSteiger\\EventManager\\AppController\\DataProvider->getFileSizeInGb'
+                resultUnit: 'GB'
 
         calendar: true
-        # settings: usePresetsComponent?
-
         tiles: true
-
-        coverFlow: false

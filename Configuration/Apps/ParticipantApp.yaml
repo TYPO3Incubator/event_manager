@@ -3,8 +3,8 @@
 app:
   package: 'AndreasSteiger/EventManager'
   name: 'EventApp' # notwendig, wenn Dati schon korrekte Bezeichnung hat?
-  title: 'LLL:EXT:event_manager/Resources/Private/Language/ParticipantApp.xlf:title'
-  labelFile: 'LLL:EXT:event_manager/Resources/Private/Language/ParticipantApp.xlf'
+  title: 'LLL:EXT:event_manager/Resources/Private/Language/locallang_apps_participantapp.xlf:title'
+  labelFile: 'LLL:EXT:event_manager/Resources/Private/Language/locallang_apps_participantapp.xlf'
   iconFile: 'EXT:event_manager/Resources/Public/Icons/ParticipantApp.svg'
   extends: 'TYPO3/CMS-ListApp'
   asideGroupWidthInPercent: 30
